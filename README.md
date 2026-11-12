@@ -8,14 +8,14 @@ Jednostavna **Vite + React** verzija FSB Mehanika workspacea za statički hostin
 
 ## Live (GitHub Pages)
 
-Nakon deploya:
+https://kosdakik123.github.io/mehanika-fsb-pages/
 
-`https://<github-user>.github.io/mehanika-fsb-pages/`
+Repo: https://github.com/KosDakik123/mehanika-fsb-pages
 
 ## Lokalno
 
 ```bash
-git clone https://github.com/<github-user>/mehanika-fsb-pages.git
+git clone https://github.com/KosDakik123/mehanika-fsb-pages.git
 cd mehanika-fsb-pages
 npm install
 npm run dev
