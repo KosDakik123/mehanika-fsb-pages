@@ -146,7 +146,14 @@ export function MehanikaWorkspace() {
     setViewMode("skica");
     setAiNote(`Generirano #${genCount.current}: ${next.title}`);
     setMobileTab("skica");
-    runSolveAssist(next);
+    setErrorMsg(null);
+    setStatus("idle");
+    // Apply local solution synchronously so UI updates immediately
+    const { task: resolved, note } = resolveLocalSolution(next, settings);
+    setTask(resolved);
+    setAiNote(
+      `Generirano #${genCount.current}: ${resolved.title} — ${note}`,
+    );
   };
 
   const onSelectTask = (id: string) => {
@@ -304,6 +311,7 @@ export function MehanikaWorkspace() {
               </div>
             )}
             <SketchCanvas
+              key={task.id}
               task={task}
               viewMode={viewMode}
               onViewModeChange={setViewMode}

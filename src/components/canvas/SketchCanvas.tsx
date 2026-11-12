@@ -78,6 +78,7 @@ export function SketchCanvas({
   };
 
   const reactionForces = viewMode === "fbd" ? buildReactionForces(task) : [];
+  const isFbd = viewMode === "fbd";
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-lg border border-cyan-800/40 bg-[#07111f]">
@@ -99,17 +100,23 @@ export function SketchCanvas({
         <div className="mr-1 flex overflow-hidden rounded border border-cyan-800/50 bg-slate-950/80 text-[10px] uppercase tracking-wider">
           <button
             type="button"
-            className={`px-2 py-1 ${viewMode === "skica" ? "bg-cyan-500/20 text-cyan-100" : "text-slate-400"}`}
-            onClick={() => onViewModeChange?.("skica")}
+            className={`px-2 py-1 ${!isFbd ? "bg-cyan-500/20 text-cyan-100" : "text-slate-400"}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewModeChange?.("skica");
+            }}
           >
             Skica
           </button>
           <button
             type="button"
-            className={`px-2 py-1 ${viewMode === "fbd" ? "bg-amber-500/20 text-amber-100" : "text-slate-400"}`}
-            onClick={() => onViewModeChange?.("fbd")}
+            className={`px-2 py-1 ${isFbd ? "bg-amber-500/30 text-amber-50" : "text-slate-400"}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewModeChange?.("fbd");
+            }}
           >
-            FBD
+            FBD{isFbd ? ` (${reactionForces.length})` : ""}
           </button>
         </div>
         <IconBtn onClick={() => setScale((s) => Math.min(3, s + 0.15))} label="Zoom +">
@@ -221,13 +228,17 @@ export function SketchCanvas({
             <SupportGlyph key={s.id} support={s} />
           ))}
 
-          {sketch.forces.map((f) => (
-            <ForceGlyph key={f.id} force={f} />
-          ))}
+          {/* Applied loads — dimmed in FBD so reactions stand out */}
+          <g opacity={isFbd ? 0.28 : 1}>
+            {sketch.forces.map((f) => (
+              <ForceGlyph key={f.id} force={f} />
+            ))}
+          </g>
 
-          {reactionForces.map((f) => (
-            <ForceGlyph key={`rxn-${f.id}`} force={f} />
-          ))}
+          {isFbd &&
+            reactionForces.map((f) => (
+              <ReactionGlyph key={`rxn-${f.id}`} force={f} />
+            ))}
 
           {sketch.labels.map((l, i) => (
             <text
@@ -482,6 +493,68 @@ function hatch(x: number, y: number, w: number) {
       strokeWidth="1.5"
     />
   ));
+}
+
+/** Explicit arrowhead — avoids marker/context-stroke browser quirks in FBD. */
+function ReactionGlyph({ force }: { force: SketchForce }) {
+  const color = "#fbbf24";
+  const { at } = force;
+  if (force.kind === "moment") {
+    const r = 32;
+    return (
+      <g>
+        <path
+          d={`M ${at.x - r} ${at.y} A ${r} ${r} 0 1 0 ${at.x + r * 0.75} ${at.y - r * 0.65}`}
+          fill="none"
+          stroke={color}
+          strokeWidth="3"
+        />
+        <polygon
+          points={`${at.x + r * 0.75},${at.y - r * 0.65} ${at.x + r * 0.45},${at.y - r * 0.95} ${at.x + r * 0.95},${at.y - r * 0.85}`}
+          fill={color}
+        />
+        <text x={at.x + 10} y={at.y - 40} fill={color} fontSize="14" fontWeight="800">
+          {force.label}
+        </text>
+      </g>
+    );
+  }
+  const len = 58;
+  const rad = (force.angleDeg * Math.PI) / 180;
+  const x2 = at.x + Math.cos(rad) * len;
+  const y2 = at.y - Math.sin(rad) * len;
+  const ux = Math.cos(rad);
+  const uy = -Math.sin(rad);
+  const px = -uy;
+  const py = ux;
+  const tip = `${x2},${y2}`;
+  const left = `${x2 - ux * 12 + px * 6},${y2 - uy * 12 + py * 6}`;
+  const right = `${x2 - ux * 12 - px * 6},${y2 - uy * 12 - py * 6}`;
+  return (
+    <g>
+      <line
+        x1={at.x}
+        y1={at.y}
+        x2={x2 - ux * 10}
+        y2={y2 - uy * 10}
+        stroke={color}
+        strokeWidth="3.5"
+        strokeLinecap="round"
+      />
+      <polygon points={`${tip} ${left} ${right}`} fill={color} />
+      <circle cx={at.x} cy={at.y} r="4" fill="#0f172a" stroke={color} strokeWidth="2" />
+      <text
+        x={x2 + ux * 14}
+        y={y2 + uy * 14}
+        fill={color}
+        fontSize="14"
+        fontWeight="800"
+        style={{ paintOrder: "stroke", stroke: "#07111f", strokeWidth: 3 }}
+      >
+        {force.label}
+      </text>
+    </g>
+  );
 }
 
 function ForceGlyph({ force }: { force: SketchForce }) {
