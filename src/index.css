@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #050b14;
+  --foreground: #e2e8f0;
+  --brand: #67e8f9;
+  --fg: #e2e8f0;
+  --panel-border: rgba(8, 145, 178, 0.28);
+  --glow: rgba(34, 211, 238, 0.18);
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-display: "Source Serif 4", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+.theme-dark {
+  --background: #050b14;
+  --foreground: #e2e8f0;
+  --brand: #67e8f9;
+  --fg: #e8f6ff;
+  --panel-border: rgba(8, 145, 178, 0.28);
+  --glow: rgba(34, 211, 238, 0.2);
+}
+
+.theme-light {
+  --background: #e8eef5;
+  --foreground: #0f172a;
+  --brand: #0e7490;
+  --fg: #0f172a;
+  --panel-border: rgba(14, 116, 144, 0.25);
+  --glow: rgba(14, 116, 144, 0.12);
+}
+
+.theme-light .mehanika-shell {
+  color: var(--foreground);
+}
+
+.theme-light aside,
+.theme-light header {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+body {
+  margin: 0;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+}
+
+.mehanika-shell {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(34, 211, 238, 0.08), transparent 50%),
+    radial-gradient(900px 500px at 90% 0%, rgba(14, 116, 144, 0.12), transparent 45%),
+    var(--background);
+  color: var(--foreground);
+}
+
+.theme-light .mehanika-shell {
+  background:
+    radial-gradient(1000px 500px at 20% -10%, rgba(14, 116, 144, 0.1), transparent 50%),
+    linear-gradient(180deg, #f3f7fb 0%, #e4edf6 100%);
+}
+
+.katex {
+  color: inherit;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 211, 238, 0.35) transparent;
+}
